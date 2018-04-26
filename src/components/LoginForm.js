@@ -1,8 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { Form, Icon, Input, Button, Alert } from "antd";
-import { connect } from "react-redux";
-import { userActions } from "../_actions";
+
 const FormItem = Form.Item;
 
 const Container = styled.div`
@@ -14,17 +13,17 @@ const Container = styled.div`
   position: fixed; /* or absolute */
   top: 50%;
   left: 50%;
-  margin-top: -20vh;
+  margin-top: -10vh;
   margin-left: -15vw;
+`;
+
+const ButtonWithMargin = styled(Button)`
+  margin-bottom: 24px;
 `;
 
 class NormalLoginForm extends React.Component {
   constructor(props) {
     super(props);
-
-    // reset login status
-    this.props.dispatch(userActions.logout());
-
     this.state = {
       username: "",
       password: "",
@@ -45,16 +44,10 @@ class NormalLoginForm extends React.Component {
         console.log("Received values of form: ", values);
       }
     });
-    const { username, password } = this.state;
-    const { dispatch } = this.props;
-    if (username && password) {
-      dispatch(userActions.login(username, password));
-    }
   };
 
   render() {
     const { getFieldDecorator } = this.props.form;
-    const { alert, loggingIn } = this.props;
     return (
       <Container>
         {alert.message && (
@@ -67,7 +60,7 @@ class NormalLoginForm extends React.Component {
             width: "100%"
           }}
         >
-          <h1 style={{ fontSize: "3em", textAlign: "center" }}>Log In</h1>
+          <h1 style={{ fontSize: "3em", textAlign: "center" }}>Sign In</h1>
           <FormItem>
             {getFieldDecorator("userName", {
               rules: [
@@ -103,31 +96,30 @@ class NormalLoginForm extends React.Component {
               />
             )}
           </FormItem>
-          <Button
+          <ButtonWithMargin
             type="primary"
             htmlType="submit"
             className="login-form-button"
             style={{ width: "100%" }}
-            loading={loggingIn}
             size="large"
           >
-            Log in
-          </Button>
+            Sign in
+          </ButtonWithMargin>
+          <ButtonWithMargin
+            type="danger"
+            htmlType="submit"
+            className="login-form-button"
+            style={{ width: "100%" }}
+            size="large"
+          >
+            Sign Up
+          </ButtonWithMargin>
         </Form>
       </Container>
     );
   }
 }
 
-const mapStateToProps = state => {
-  const { loggingIn } = state.authentication;
-  const { alert } = state;
-  return {
-    loggingIn,
-    alert
-  };
-};
-
 const LoginForm = Form.create()(NormalLoginForm);
 
-export default connect(mapStateToProps)(LoginForm);
+export default LoginForm;
