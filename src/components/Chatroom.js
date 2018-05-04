@@ -112,13 +112,12 @@ export default class Chatroom extends React.Component {
               itemLayout="horizontal"
               dataSource={this.state.chatHistory}
               renderItem={item => {
-                console.log(item);
                 return (
                   <List.Item>
                     <List.Item.Meta
                       avatar={<Avatar src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png" />}
                       title={<a href="https://ant.design">{item.username}</a>}
-                      description={item.unread ? <p style={{ color: 'red' }}>{item.message}</p> : <p>{item.message}</p>}
+                      description={item.message}
                     />
                   </List.Item>
                 );

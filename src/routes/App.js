@@ -59,15 +59,12 @@ class App extends React.Component {
   };
 
   onReceiveMessage = data => {
-    console.log(data);
     const { chatHistory } = this.state;
-    console.log(chatHistory);
     if (chatHistory[data.gid]) {
       chatHistory[data.gid] = [...chatHistory[data.gid], data];
     } else {
       chatHistory[data.gid] = [data];
     }
-    console.log(chatHistory);
     this.setState({ chatHistory: chatHistory });
   };
 
