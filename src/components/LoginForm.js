@@ -34,6 +34,7 @@ class NormalLoginForm extends React.Component {
   handleChange = e => {
     const { name, value } = e.target;
     this.setState({ [name]: value });
+    this.props.onChange(e);
   };
 
   handleSubmit = e => {
@@ -102,6 +103,7 @@ class NormalLoginForm extends React.Component {
             className="login-form-button"
             style={{ width: "100%" }}
             size="large"
+            onClick={this.props.onSignInClick}
           >
             Sign in
           </ButtonWithMargin>
@@ -111,6 +113,7 @@ class NormalLoginForm extends React.Component {
             className="login-form-button"
             style={{ width: "100%" }}
             size="large"
+            onClick={this.props.onSignUpClick}
           >
             Sign Up
           </ButtonWithMargin>

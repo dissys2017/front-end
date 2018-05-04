@@ -9,14 +9,20 @@ const { Header, Content, Sider } = Layout;
 class DashboardPage extends React.Component {
   constructor(props) {
     super(props);
-    const { user } = this.props;
+    const { user, socket, chatrooms } = this.props;
     this.state = {
+      socket,
       user,
-      chatrooms: [{ name: "room1" }, { name: "room2" }],
-      addVisible: false,
-      joinVisible: false
+      chatrooms: chatrooms || [{ groupname: "room1" }, { groupname: "room2" }]
     };
   }
+
+  componentWillReceiveProps = nextProps => {
+    if (nextProps.chatrooms) {
+      this.setState({ chatrooms: nextProps.chatrooms });
+    }
+  };
+
   randomIcon = () => {
     const iconList = [
       "mail",
@@ -36,7 +42,8 @@ class DashboardPage extends React.Component {
   handleSelected = e => {
     const head = "/dashboard";
     let path = `${head}/${
-      this.state.chatrooms[parseInt(e.key, this.state.chatrooms.length)].name
+      this.state.chatrooms[parseInt(e.key, this.state.chatrooms.length)]
+        .groupname
     }`;
     history.push(path);
     this.setState({ selectedKeys: [e.key] });
@@ -58,13 +65,13 @@ class DashboardPage extends React.Component {
         // chatHistory={chatHistory}
         user={this.state.user}
         onLeave={() =>
-          this.onLeaveChatroom(chatroom.name, () => {
+          this.onLeaveChatroom(chatroom.groupname, () => {
             this.setState({ selectedKeys: [""] });
             history.push("/dashboard");
           })
         }
         onSendMessage={(message, cb) =>
-          this.state.client.message(chatroom.name, message, cb)
+          this.state.client.message(chatroom.groupname, message, cb)
         }
       />
     );
@@ -95,10 +102,10 @@ class DashboardPage extends React.Component {
               placeholder="Input group to add or group id to join"
               style={{ width: "50%" }}
             />
-            <Button size="large" onClick={{}}>
+            <Button size="large" onClick={() => {}}>
               Add Group
             </Button>
-            <Button size="large" onClick={{}}>
+            <Button size="large" onClick={() => {}}>
               Join Group
             </Button>
           </div>
@@ -117,7 +124,7 @@ class DashboardPage extends React.Component {
               {this.state.chatrooms.map((room, key) => (
                 <Menu.Item key={key}>
                   <Icon type={this.randomIcon()} />
-                  {room.name}
+                  {room.groupname}
                 </Menu.Item>
               ))}
             </Menu>
@@ -135,9 +142,9 @@ class DashboardPage extends React.Component {
               <Switch>
                 {this.state.chatrooms.map(chatroom => (
                   <Route
-                    key={chatroom.name}
+                    key={chatroom.groupname}
                     exact
-                    path={`/dashboard/${chatroom.name}`}
+                    path={`/dashboard/${chatroom.groupname}`}
                     render={props =>
                       this.renderChatroomOrRedirect(chatroom, props)
                     }

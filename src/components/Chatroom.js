@@ -135,7 +135,7 @@ export default class Chatroom extends React.Component {
     return (
       <div style={{ height: "100%" }}>
         <Header>
-          <Title>{this.props.chatroom.name}</Title>
+          <Title>{this.props.chatroom.groupname}</Title>
           <Icon
             type="close-circle"
             style={{ fontSize: 24, color: "white", cursor: "pointer" }}
