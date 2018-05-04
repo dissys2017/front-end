@@ -1,6 +1,6 @@
 import io from "socket.io-client";
 
-const SERVER = "http://localhost:5555";
+const SERVER = "http://localhost:5000";
 
 class chatSocket {
   constructor(config) {
