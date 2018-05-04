@@ -13,7 +13,8 @@ class DashboardPage extends React.Component {
     this.state = {
       socket,
       user,
-      chatrooms: chatrooms || [{ groupname: "room1" }, { groupname: "room2" }]
+      chatrooms: chatrooms || [{ groupname: "room1" }, { groupname: "room2" }],
+      input: ""
     };
   }
 
@@ -55,6 +56,10 @@ class DashboardPage extends React.Component {
     return onLeaveSuccess();
     // });
   }
+
+  onInputChange = e => {
+    this.setState({ input: e.target.value });
+  };
 
   renderChatroomOrRedirect = chatroom => {
     // const { chatHistory } = history.location.state;
@@ -101,11 +106,22 @@ class DashboardPage extends React.Component {
             <Input
               placeholder="Input group to add or group id to join"
               style={{ width: "50%" }}
+              onChange={this.onInputChange}
             />
-            <Button size="large" onClick={() => {}}>
+            <Button
+              size="large"
+              onClick={() => {
+                this.state.socket.createGroup(this.state.input);
+              }}
+            >
               Add Group
             </Button>
-            <Button size="large" onClick={() => {}}>
+            <Button
+              size="large"
+              onClick={() => {
+                this.state.socket.joinGroup(this.state.input);
+              }}
+            >
               Join Group
             </Button>
           </div>
