@@ -1,8 +1,8 @@
-import React from "react";
-import { Layout, Menu, Icon, Button, Input } from "antd";
-import { Switch, Route } from "react-router-dom";
-import { history } from "../routes";
-import { Chatroom } from "../components";
+import React from 'react';
+import { Layout, Menu, Icon, Button, Input } from 'antd';
+import { Switch, Route } from 'react-router-dom';
+import { history } from '../routes';
+import { Chatroom } from '../components';
 
 const { Header, Content, Sider } = Layout;
 
@@ -13,8 +13,8 @@ class DashboardPage extends React.Component {
     this.state = {
       socket,
       user,
-      chatrooms: chatrooms || [{ groupname: "room1" }, { groupname: "room2" }],
-      input: ""
+      chatrooms: chatrooms || [{ groupname: 'room1' }, { groupname: 'room2' }],
+      input: ''
     };
   }
 
@@ -28,40 +28,38 @@ class DashboardPage extends React.Component {
   };
 
   randomIcon = () => {
-    const iconList = [
-      "mail",
-      "appstore",
-      "pie-chart",
-      "desktop",
-      "inbox",
-      "calendar"
-    ];
+    const iconList = ['mail', 'appstore', 'pie-chart', 'desktop', 'inbox', 'calendar'];
     return iconList[Math.floor(Math.random() * Math.floor(iconList.length))];
   };
 
   handleSignOut = () => {
-    history.push("/");
+    history.push('/');
+    this.state.socket.logout();
   };
 
   handleSelected = e => {
     let oldKey = this.state.selectedKeys;
-
-    const head = "/dashboard";
-    let path = `${head}/${e.item.props.gid}`;
-    history.push(path);
-    this.setState({ selectedKeys: [e.key] });
-    this.state.socket.getPrevMessage(e.item.props.gid);
-    this.state.socket.breakGroup(oldKey);
-
-    if (oldKey !== undefined && oldKey !== [""]) {
-      const { chatHistory, chatrooms } = this.state;
+    const { chatHistory, chatrooms } = this.state;
+    if (oldKey !== undefined && oldKey !== ['']) {
       oldKey = oldKey[0];
+      this.state.socket.breakGroup(oldKey);
+      this.state.socket.leaveRoom(oldKey);
       chatHistory[chatrooms[parseInt(oldKey)].gid] &&
         chatHistory[chatrooms[parseInt(oldKey)].gid].forEach(chat => {
           chat.unread = false;
         });
       this.setState({ chatHistory });
+      console.log(chatHistory[chatrooms[parseInt(oldKey)].gid]);
     }
+    console.log(chatHistory[e.item.props.gid]);
+
+    this.state.socket.joinRoom(e.item.props.gid);
+
+    const head = '/dashboard';
+    let path = `${head}/${e.item.props.gid}`;
+    history.push(path);
+    this.setState({ selectedKeys: [e.key] });
+    this.state.socket.getPrevMessage(e.item.props.gid);
   };
 
   onInputChange = e => {
@@ -78,47 +76,39 @@ class DashboardPage extends React.Component {
         user={this.state.user}
         socket={this.state.socket}
         onLeave={() => {
-          this.setState({ selectedKeys: [""] });
-          history.push("/dashboard");
+          this.setState({ selectedKeys: [''] });
+          history.push('/dashboard');
         }}
-        onSendMessage={(message, cb) =>
-          this.state.client.message(chatroom.groupname, message, cb)
-        }
+        onSendMessage={(message, cb) => this.state.client.message(chatroom.groupname, message, cb)}
       />
     );
   };
 
   render() {
     return (
-      <Layout style={{ height: "100vh" }}>
+      <Layout style={{ height: '100vh' }}>
         <Header
           style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center"
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center'
           }}
         >
-          <h1 style={{ color: "white", margin: "0px" }}>
-            Username: {this.state.user}
-          </h1>
+          <h1 style={{ color: 'white', margin: '0px' }}>Username: {this.state.user}</h1>
           <div
             style={{
-              width: "60%",
-              display: "flex",
-              justifyContent: "space-around",
-              alignItems: "center"
+              width: '60%',
+              display: 'flex',
+              justifyContent: 'space-around',
+              alignItems: 'center'
             }}
           >
-            <Input
-              placeholder="Input group to add or group id to join"
-              style={{ width: "40%" }}
-              onChange={this.onInputChange}
-            />
+            <Input placeholder="Input group to add or group id to join" style={{ width: '40%' }} onChange={this.onInputChange} />
             <Button
               size="large"
               onClick={() => {
                 this.state.socket.createGroup(this.state.input);
-                this.setState({ input: "" });
+                this.setState({ input: '' });
               }}
             >
               Add Group
@@ -127,7 +117,7 @@ class DashboardPage extends React.Component {
               size="large"
               onClick={() => {
                 this.state.socket.joinGroup(this.state.input);
-                this.setState({ input: "" });
+                this.setState({ input: '' });
               }}
             >
               Join Group
@@ -136,7 +126,7 @@ class DashboardPage extends React.Component {
               size="large"
               onClick={() => {
                 this.state.socket.leaveGroup(this.state.input);
-                this.setState({ input: "" });
+                this.setState({ input: '' });
               }}
             >
               Leave Group
@@ -147,13 +137,8 @@ class DashboardPage extends React.Component {
           </Button>
         </Header>
         <Layout>
-          <Sider width={250} style={{ background: "#fff" }}>
-            <Menu
-              mode="inline"
-              style={{ height: "100%", borderRight: 0 }}
-              selectedKeys={this.state.selectedKeys}
-              onSelect={this.handleSelected}
-            >
+          <Sider width={250} style={{ background: '#fff' }}>
+            <Menu mode="inline" style={{ height: '100%', borderRight: 0 }} selectedKeys={this.state.selectedKeys} onSelect={this.handleSelected}>
               {this.state.chatrooms &&
                 this.state.chatrooms.map((room, key) => (
                   <Menu.Item key={key} gid={room.gid}>
@@ -163,26 +148,19 @@ class DashboardPage extends React.Component {
                 ))}
             </Menu>
           </Sider>
-          <Layout style={{ padding: "24px 24px 24px" }}>
+          <Layout style={{ padding: '24px 24px 24px' }}>
             <Content
               style={{
-                background: "#fff",
+                background: '#fff',
                 // padding: 24,
                 margin: 0,
                 minHeight: 280,
-                height: "100%"
+                height: '100%'
               }}
             >
               <Switch>
                 {this.state.chatrooms.map((chatroom, key) => (
-                  <Route
-                    key={key}
-                    exact
-                    path={`/dashboard/${chatroom.gid}`}
-                    render={props =>
-                      this.renderChatroomOrRedirect(chatroom, props)
-                    }
-                  />
+                  <Route key={key} exact path={`/dashboard/${chatroom.gid}`} render={props => this.renderChatroomOrRedirect(chatroom, props)} />
                 ))}
               </Switch>
             </Content>

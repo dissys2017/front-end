@@ -92,6 +92,16 @@ class chatSocket {
       this.onReceivePreviousGroupMessage(data);
     });
 
+    // join room
+    this.joinRoom = gid => {
+      if (gid) socket.emit('joinRoom', { gid });
+    };
+
+    // leave room
+    this.leaveRoom = gid => {
+      if (gid) socket.emit('leaveRoom', { gid });
+    };
+
     // break group
     this.breakGroup = gid => {
       if (gid) socket.emit('breakFromGroup', { gid });
@@ -108,6 +118,7 @@ class chatSocket {
 
     // receive message
     socket.on('broadcastChatMessage', data => {
+      console.log(data);
       this.onReceiveMessage(data);
     });
 

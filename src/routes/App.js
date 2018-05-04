@@ -1,14 +1,14 @@
-import React from "react";
-import { Switch, Route, Router } from "react-router-dom";
-import { message } from "antd";
-import { LoginPage, DashboardPage } from "../pages";
-import { history } from "./history";
-import chatSocket from "../socket";
+import React from 'react';
+import { Switch, Route, Router } from 'react-router-dom';
+import { message } from 'antd';
+import { LoginPage, DashboardPage } from '../pages';
+import { history } from './history';
+import chatSocket from '../socket';
 
 class App extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { user: "LAAMSANG", chatHistory: {} };
+    this.state = { user: 'LAAMSANG', chatHistory: {} };
   }
 
   componentWillMount() {
@@ -28,31 +28,31 @@ class App extends React.Component {
   }
 
   onReceiveGroups = data => {
-    console.log("receive");
+    console.log('receive');
   };
 
   onRegisterSuccess = () => {
-    message.success("Sign Up Success!!!");
+    message.success('Sign Up Success!!!');
   };
 
   onRegisterError = () => {
-    message.error("Sign Up Fail!!!");
+    message.error('Sign Up Fail!!!');
   };
 
   onLoginSuccess = () => {
-    history.push("/dashboard");
+    history.push('/dashboard');
   };
 
   onLoginError = () => {
-    message.error("Sign In Fail!!!");
+    message.error('Sign In Fail!!!');
   };
 
   onAlreadyLogIn = () => {
-    message.error("This account is already logged In!!!");
+    message.error('This account is already logged In!!!');
   };
 
   onReceiveGroups = data => {
-    console.log("receive");
+    console.log('receive');
     if (data) {
       this.setState({ chatrooms: data.groups });
     }
@@ -73,11 +73,12 @@ class App extends React.Component {
 
   onReceivePreviousGroupMessage = data => {
     const { chatHistory } = this.state;
-    if (data.type === "all") {
+    if (data.type === 'all') {
       chatHistory[data.gid] = data.newMessages;
-    } else if (data.type === "incremental") {
+    } else if (data.type === 'incremental') {
       chatHistory[data.gid] = [...chatHistory[data.gid], ...data.newMessages];
     }
+    console.log(data.type);
     this.setState({ chatHistory: chatHistory });
   };
 
@@ -85,11 +86,7 @@ class App extends React.Component {
     return (
       <Router history={history}>
         <Switch>
-          <Route
-            exact
-            path="/"
-            render={props => <LoginPage socket={this.state.socket} />}
-          />
+          <Route exact path="/" render={props => <LoginPage socket={this.state.socket} />} />
           <Route
             path="/dashboard"
             render={props => (

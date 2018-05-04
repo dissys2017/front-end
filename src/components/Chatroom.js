@@ -1,6 +1,6 @@
-import React from "react";
-import styled from "styled-components";
-import { Icon, Input, Button, List, Avatar } from "antd";
+import React from 'react';
+import styled from 'styled-components';
+import { Icon, Input, Button, List, Avatar } from 'antd';
 
 const { TextArea } = Input;
 
@@ -59,8 +59,14 @@ export default class Chatroom extends React.Component {
     this.state = {
       socket,
       chatHistory,
-      input: ""
+      input: ''
     };
+  }
+
+  componentWillReceiveProps(nextProps) {
+    this.setState({
+      chatHistory: nextProps.chatHistory
+    });
   }
 
   componentDidMount() {
@@ -80,7 +86,7 @@ export default class Chatroom extends React.Component {
   onSendMessage = () => {
     if (!this.state.input) return;
     this.state.socket.sendMessage(this.props.chatroom.gid, this.state.input);
-    this.setState({ input: "" });
+    this.setState({ input: '' });
   };
 
   scrollChatToBottom() {
@@ -89,16 +95,12 @@ export default class Chatroom extends React.Component {
 
   render() {
     return (
-      <div style={{ height: "100%" }}>
+      <div style={{ height: '100%' }}>
         <Header>
           <Title>
             {this.props.chatroom.groupname} : {this.props.chatroom.gid}
           </Title>
-          <Icon
-            type="close-circle"
-            style={{ fontSize: 24, color: "white", cursor: "pointer" }}
-            onClick={this.props.onLeave}
-          />
+          <Icon type="close-circle" style={{ fontSize: 24, color: 'white', cursor: 'pointer' }} onClick={this.props.onLeave} />
         </Header>
         <ChatPanel>
           <Scrollable
@@ -108,39 +110,25 @@ export default class Chatroom extends React.Component {
           >
             <List
               itemLayout="horizontal"
-              dataSource={this.props.chatHistory}
-              renderItem={item => (
-                <List.Item>
-                  <List.Item.Meta
-                    avatar={
-                      <Avatar src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png" />
-                    }
-                    title={<a href="https://ant.design">{item.username}</a>}
-                    description={
-                      item.unread ? (
-                        <p style={{ color: "red" }}>{item.message}</p>
-                      ) : (
-                        <p>{item.message}</p>
-                      )
-                    }
-                  />
-                </List.Item>
-              )}
+              dataSource={this.state.chatHistory}
+              renderItem={item => {
+                console.log(item);
+                return (
+                  <List.Item>
+                    <List.Item.Meta
+                      avatar={<Avatar src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png" />}
+                      title={<a href="https://ant.design">{item.username}</a>}
+                      description={item.unread ? <p style={{ color: 'red' }}>{item.message}</p> : <p>{item.message}</p>}
+                    />
+                  </List.Item>
+                );
+              }}
             />
           </Scrollable>
         </ChatPanel>
         <InputPanel>
-          <TextArea
-            autosize={{ minRows: 2, maxRows: 2 }}
-            style={{ width: "90%" }}
-            onChange={this.onInput}
-          />
-          <Button
-            shape="circle"
-            icon="rocket"
-            size="large"
-            onClick={this.onSendMessage}
-          />
+          <TextArea autosize={{ minRows: 2, maxRows: 2 }} style={{ width: '90%' }} onChange={this.onInput} />
+          <Button shape="circle" icon="rocket" size="large" onClick={this.onSendMessage} />
         </InputPanel>
       </div>
     );
