@@ -127,7 +127,7 @@ export default class Chatroom extends React.Component {
           </Scrollable>
         </ChatPanel>
         <InputPanel>
-          <TextArea autosize={{ minRows: 2, maxRows: 2 }} style={{ width: '90%' }} onChange={this.onInput} />
+          <TextArea autosize={{ minRows: 2, maxRows: 2 }} style={{ width: '90%' }} onChange={this.onInput} value={this.state.input}/>
           <Button shape="circle" icon="rocket" size="large" onClick={this.onSendMessage} />
         </InputPanel>
       </div>

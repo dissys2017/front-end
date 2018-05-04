@@ -8,7 +8,7 @@ import chatSocket from '../socket';
 class App extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { user: 'LAAMSANG', chatHistory: {} };
+    this.state = { username: "", password: "", chatHistory: {} };
   }
 
   componentWillMount() {
@@ -82,11 +82,16 @@ class App extends React.Component {
     this.setState({ chatHistory: chatHistory });
   };
 
+  handleChange = e => {
+    const { name, value } = e.target;
+    this.setState({ [name]: value });
+  };
+
   render() {
     return (
       <Router history={history}>
         <Switch>
-          <Route exact path="/" render={props => <LoginPage socket={this.state.socket} />} />
+          <Route exact path="/" render={props => <LoginPage socket={this.state.socket} onChange={this.handleChange}/>} />
           <Route
             path="/dashboard"
             render={props => (
@@ -95,6 +100,7 @@ class App extends React.Component {
                 socket={this.state.socket}
                 chatrooms={this.state.chatrooms}
                 chatHistory={this.state.chatHistory}
+                username={this.state.username}
               />
             )}
           />

@@ -9,10 +9,10 @@ const { Header, Content, Sider } = Layout;
 class DashboardPage extends React.Component {
   constructor(props) {
     super(props);
-    const { user, socket, chatrooms } = this.props;
+    const { username, socket, chatrooms } = this.props;
     this.state = {
       socket,
-      user,
+      username,
       chatrooms: chatrooms || [{ groupname: 'room1' }, { groupname: 'room2' }],
       input: ''
     };
@@ -94,7 +94,7 @@ class DashboardPage extends React.Component {
             alignItems: 'center'
           }}
         >
-          <h1 style={{ color: 'white', margin: '0px' }}>Username: {this.state.user}</h1>
+          <h1 style={{ color: 'white', margin: '0px' }}>Username: {this.state.username}</h1>
           <div
             style={{
               width: '60%',
@@ -103,7 +103,7 @@ class DashboardPage extends React.Component {
               alignItems: 'center'
             }}
           >
-            <Input placeholder="Input group to add or group id to join" style={{ width: '40%' }} onChange={this.onInputChange} />
+            <Input placeholder="Input group to add or group id to join" style={{ width: '40%' }} onChange={this.onInputChange} value={this.state.input}/>
             <Button
               size="large"
               onClick={() => {
