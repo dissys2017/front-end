@@ -8,7 +8,7 @@ import chatSocket from '../socket';
 class App extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { username: "", password: "", chatHistory: {} };
+    this.state = { username: '', password: '', chatHistory: {} };
   }
 
   componentWillMount() {
@@ -20,12 +20,33 @@ class App extends React.Component {
       onAlreadyLogIn: this.onAlreadyLogIn,
       onReceiveGroups: this.onReceiveGroups,
       onReceivePreviousGroupMessage: this.onReceivePreviousGroupMessage,
-      onReceiveMessage: this.onReceiveMessage
+      onReceiveMessage: this.onReceiveMessage,
+      onLogout: this.onLogout
     });
     this.setState({
       socket: socket
     });
   }
+
+  // onLogout = () => {
+  //   history.push('/');
+  //   setTimeout(() => {
+  //     const socket = new chatSocket({
+  //       onRegisterSuccess: this.onRegisterSuccess,
+  //       onRegisterError: this.onRegisterError,
+  //       onLoginSuccess: this.onLoginSuccess,
+  //       onLoginError: this.onLoginError,
+  //       onAlreadyLogIn: this.onAlreadyLogIn,
+  //       onReceiveGroups: this.onReceiveGroups,
+  //       onReceivePreviousGroupMessage: this.onReceivePreviousGroupMessage,
+  //       onReceiveMessage: this.onReceiveMessage,
+  //       onLogout: this.onLogout
+  //     });
+  //     this.setState({
+  //       socket: socket
+  //     });
+  //   }, 2000);
+  // };
 
   onReceiveGroups = data => {
     console.log('receive');
@@ -88,7 +109,7 @@ class App extends React.Component {
     return (
       <Router history={history}>
         <Switch>
-          <Route exact path="/" render={props => <LoginPage socket={this.state.socket} onChange={this.handleChange}/>} />
+          <Route exact path="/" render={props => <LoginPage socket={this.state.socket} onChange={this.handleChange} />} />
           <Route
             path="/dashboard"
             render={props => (
