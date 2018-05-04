@@ -27,10 +27,12 @@ class chatSocket {
     };
 
     // register success
-    socket.on("loggedIn", this.onRegisterSuccess);
+    socket.on("registerSuccess", () => {
+      this.onRegisterSuccess();
+    });
 
     // register username or password is not correct
-    socket.on("", this.onRegisterError);
+    socket.on("registerFail", this.onRegisterError);
 
     // login
     this.login = (username, password) => {
@@ -48,6 +50,11 @@ class chatSocket {
 
     // username is already login from somewhere
     socket.on("alreadySignedIn", this.onAlreadyLogIn);
+
+    // logout
+    this.logout = () => {
+      socket.emit("logout");
+    };
 
     // ---------------- post-login feature ---------------- //
 
@@ -77,7 +84,7 @@ class chatSocket {
     };
 
     // get message when receive group
-    this.getPrevMessage = (gid, limit) => {
+    this.getPrevMessage = (gid, limit = 100) => {
       socket.emit("getPreviousMessages", { gid, limit });
     };
 
@@ -85,6 +92,11 @@ class chatSocket {
     socket.on("receivePreviousMessages", data => {
       this.onReceivePreviousGroupMessage(data);
     });
+
+    // break group
+    this.breakGroup = gid => {
+      socket.emit("breakFromGroup", { gid });
+    };
 
     // ---------------- chatting feature ---------------- //
 

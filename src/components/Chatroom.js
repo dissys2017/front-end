@@ -54,43 +54,16 @@ const Scrollable = styled.div`
 export default class Chatroom extends React.Component {
   constructor(props) {
     super(props);
-    const { chatHistory } = props;
+    const { chatHistory, socket } = props;
 
     this.state = {
+      socket,
       chatHistory,
       input: ""
     };
   }
 
-  data = [
-    {
-      title: "Ant Design Title 1"
-    },
-    {
-      title: "Ant Design Title 2"
-    },
-    {
-      title: "Ant Design Title 3"
-    },
-    {
-      title: "Ant Design Title 4"
-    },
-    {
-      title: "Ant Design Title 1"
-    },
-    {
-      title: "Ant Design Title 2"
-    },
-    {
-      title: "Ant Design Title 3"
-    },
-    {
-      title: "Ant Design Title 4"
-    }
-  ];
-
   componentDidMount() {
-    //   this.props.registerHandler(this.onMessageReceived);
     this.scrollChatToBottom();
   }
 
@@ -98,34 +71,17 @@ export default class Chatroom extends React.Component {
     this.scrollChatToBottom();
   }
 
-  //   componentWillUnmount() {
-  //     this.props.unregisterHandler();
-  //   }
-
   onInput = e => {
     this.setState({
       input: e.target.value
     });
   };
 
-  //   onSendMessage() {
-  //     if (!this.state.input) return;
-
-  //     this.props.onSendMessage(this.state.input, err => {
-  //       if (err) return console.error(err);
-
-  //       return this.setState({ input: "" });
-  //     });
-  //   }
-
-  //   onMessageReceived(entry) {
-  //     console.log("onMessageReceived:", entry);
-  //     this.updateChatHistory(entry);
-  //   }
-
-  //   updateChatHistory(entry) {
-  //     this.setState({ chatHistory: this.state.chatHistory.concat(entry) });
-  //   }
+  onSendMessage = () => {
+    if (!this.state.input) return;
+    this.state.socket.sendMessage(this.props.chatroom.gid, this.state.input);
+    this.setState({ input: "" });
+  };
 
   scrollChatToBottom() {
     this.panel.scrollTo(0, this.panel.scrollHeight);
@@ -135,7 +91,9 @@ export default class Chatroom extends React.Component {
     return (
       <div style={{ height: "100%" }}>
         <Header>
-          <Title>{this.props.chatroom.groupname}</Title>
+          <Title>
+            {this.props.chatroom.groupname} : {this.props.chatroom.gid}
+          </Title>
           <Icon
             type="close-circle"
             style={{ fontSize: 24, color: "white", cursor: "pointer" }}
@@ -150,15 +108,21 @@ export default class Chatroom extends React.Component {
           >
             <List
               itemLayout="horizontal"
-              dataSource={this.data}
+              dataSource={this.props.chatHistory}
               renderItem={item => (
                 <List.Item>
                   <List.Item.Meta
                     avatar={
                       <Avatar src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png" />
                     }
-                    title={<a href="https://ant.design">{item.title}</a>}
-                    description="Ant Design, a design language for background applications, is refined by Ant UED Team"
+                    title={<a href="https://ant.design">{item.username}</a>}
+                    description={
+                      item.unread ? (
+                        <p style={{ color: "red" }}>{item.message}</p>
+                      ) : (
+                        <p>{item.message}</p>
+                      )
+                    }
                   />
                 </List.Item>
               )}
@@ -171,7 +135,12 @@ export default class Chatroom extends React.Component {
             style={{ width: "90%" }}
             onChange={this.onInput}
           />
-          <Button shape="circle" icon="rocket" size="large" />
+          <Button
+            shape="circle"
+            icon="rocket"
+            size="large"
+            onClick={this.onSendMessage}
+          />
         </InputPanel>
       </div>
     );

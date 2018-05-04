@@ -8,7 +8,7 @@ import chatSocket from "../socket";
 class App extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { user: "LAAMSANG" };
+    this.state = { user: "LAAMSANG", chatHistory: {} };
   }
 
   componentWillMount() {
@@ -18,7 +18,9 @@ class App extends React.Component {
       onLoginSuccess: this.onLoginSuccess,
       onLoginError: this.onLoginError,
       onAlreadyLogIn: this.onAlreadyLogIn,
-      onReceiveGroups: this.onReceiveGroups
+      onReceiveGroups: this.onReceiveGroups,
+      onReceivePreviousGroupMessage: this.onReceivePreviousGroupMessage,
+      onReceiveMessage: this.onReceiveMessage
     });
     this.setState({
       socket: socket
@@ -30,7 +32,7 @@ class App extends React.Component {
   };
 
   onRegisterSuccess = () => {
-    history.push("/dashboard");
+    message.success("Sign Up Success!!!");
   };
 
   onRegisterError = () => {
@@ -56,6 +58,29 @@ class App extends React.Component {
     }
   };
 
+  onReceiveMessage = data => {
+    console.log(data);
+    const { chatHistory } = this.state;
+    console.log(chatHistory);
+    if (chatHistory[data.gid]) {
+      chatHistory[data.gid] = [...chatHistory[data.gid], data];
+    } else {
+      chatHistory[data.gid] = [data];
+    }
+    console.log(chatHistory);
+    this.setState({ chatHistory: chatHistory });
+  };
+
+  onReceivePreviousGroupMessage = data => {
+    const { chatHistory } = this.state;
+    if (data.type === "all") {
+      chatHistory[data.gid] = data.newMessages;
+    } else if (data.type === "incremental") {
+      chatHistory[data.gid] = [...chatHistory[data.gid], ...data.newMessages];
+    }
+    this.setState({ chatHistory: chatHistory });
+  };
+
   render() {
     return (
       <Router history={history}>
@@ -72,6 +97,7 @@ class App extends React.Component {
                 user={this.state.user}
                 socket={this.state.socket}
                 chatrooms={this.state.chatrooms}
+                chatHistory={this.state.chatHistory}
               />
             )}
           />

@@ -22,6 +22,9 @@ class DashboardPage extends React.Component {
     if (nextProps.chatrooms) {
       this.setState({ chatrooms: nextProps.chatrooms });
     }
+    if (nextProps.chatHistory) {
+      this.setState({ chatHistory: nextProps.chatHistory });
+    }
   };
 
   randomIcon = () => {
@@ -41,21 +44,25 @@ class DashboardPage extends React.Component {
   };
 
   handleSelected = e => {
+    let oldKey = this.state.selectedKeys;
+
     const head = "/dashboard";
-    let path = `${head}/${
-      this.state.chatrooms[parseInt(e.key, this.state.chatrooms.length)]
-        .groupname
-    }`;
+    let path = `${head}/${e.item.props.gid}`;
     history.push(path);
     this.setState({ selectedKeys: [e.key] });
-  };
+    this.state.socket.getPrevMessage(e.item.props.gid);
+    this.state.socket.breakGroup(oldKey);
 
-  onLeaveChatroom(chatroomName, onLeaveSuccess) {
-    // this.state.client.leave(chatroomName, err => {
-    //   if (err) return console.error(err);
-    return onLeaveSuccess();
-    // });
-  }
+    if (oldKey !== undefined && oldKey !== [""]) {
+      const { chatHistory, chatrooms } = this.state;
+      oldKey = oldKey[0];
+      chatHistory[chatrooms[parseInt(oldKey)].gid] &&
+        chatHistory[chatrooms[parseInt(oldKey)].gid].forEach(chat => {
+          chat.unread = false;
+        });
+      this.setState({ chatHistory });
+    }
+  };
 
   onInputChange = e => {
     this.setState({ input: e.target.value });
@@ -67,14 +74,13 @@ class DashboardPage extends React.Component {
     return (
       <Chatroom
         chatroom={chatroom}
-        // chatHistory={chatHistory}
+        chatHistory={this.state.chatHistory[chatroom.gid]}
         user={this.state.user}
-        onLeave={() =>
-          this.onLeaveChatroom(chatroom.groupname, () => {
-            this.setState({ selectedKeys: [""] });
-            history.push("/dashboard");
-          })
-        }
+        socket={this.state.socket}
+        onLeave={() => {
+          this.setState({ selectedKeys: [""] });
+          history.push("/dashboard");
+        }}
         onSendMessage={(message, cb) =>
           this.state.client.message(chatroom.groupname, message, cb)
         }
@@ -105,13 +111,14 @@ class DashboardPage extends React.Component {
           >
             <Input
               placeholder="Input group to add or group id to join"
-              style={{ width: "50%" }}
+              style={{ width: "40%" }}
               onChange={this.onInputChange}
             />
             <Button
               size="large"
               onClick={() => {
                 this.state.socket.createGroup(this.state.input);
+                this.setState({ input: "" });
               }}
             >
               Add Group
@@ -120,13 +127,23 @@ class DashboardPage extends React.Component {
               size="large"
               onClick={() => {
                 this.state.socket.joinGroup(this.state.input);
+                this.setState({ input: "" });
               }}
             >
               Join Group
             </Button>
+            <Button
+              size="large"
+              onClick={() => {
+                this.state.socket.leaveGroup(this.state.input);
+                this.setState({ input: "" });
+              }}
+            >
+              Leave Group
+            </Button>
           </div>
           <Button type="primary" size="large" onClick={this.handleSignOut}>
-            Logout
+            Sign Out
           </Button>
         </Header>
         <Layout>
@@ -137,12 +154,13 @@ class DashboardPage extends React.Component {
               selectedKeys={this.state.selectedKeys}
               onSelect={this.handleSelected}
             >
-              {this.state.chatrooms.map((room, key) => (
-                <Menu.Item key={key}>
-                  <Icon type={this.randomIcon()} />
-                  {room.groupname}
-                </Menu.Item>
-              ))}
+              {this.state.chatrooms &&
+                this.state.chatrooms.map((room, key) => (
+                  <Menu.Item key={key} gid={room.gid}>
+                    <Icon type={this.randomIcon()} />
+                    {room.groupname}
+                  </Menu.Item>
+                ))}
             </Menu>
           </Sider>
           <Layout style={{ padding: "24px 24px 24px" }}>
@@ -156,11 +174,11 @@ class DashboardPage extends React.Component {
               }}
             >
               <Switch>
-                {this.state.chatrooms.map(chatroom => (
+                {this.state.chatrooms.map((chatroom, key) => (
                   <Route
-                    key={chatroom.groupname}
+                    key={key}
                     exact
-                    path={`/dashboard/${chatroom.groupname}`}
+                    path={`/dashboard/${chatroom.gid}`}
                     render={props =>
                       this.renderChatroomOrRedirect(chatroom, props)
                     }
