@@ -14,7 +14,6 @@ class App extends React.Component {
         <Switch>
           <Route exact path="/" component={LoginPage} />
           <Route
-            exact
             path="/dashboard"
             render={props => <DashboardPage user={this.state.user} />}
           />

@@ -1,13 +1,21 @@
 import React from "react";
-import { Layout, Menu, Icon, Button } from "antd";
+import { Layout, Menu, Icon, Button, Input } from "antd";
+import { Switch, Route } from "react-router-dom";
 import { history } from "../routes";
+import { Chatroom } from "../components";
 
 const { Header, Content, Sider } = Layout;
 
 class DashboardPage extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { chatroomList: ["Room1", "Room2"] };
+    const { user } = this.props;
+    this.state = {
+      user,
+      chatrooms: [{ name: "room1" }, { name: "room2" }],
+      addVisible: false,
+      joinVisible: false
+    };
   }
   randomIcon = () => {
     const iconList = [
@@ -24,8 +32,45 @@ class DashboardPage extends React.Component {
   handleSignOut = () => {
     history.push("/");
   };
+
+  handleSelected = e => {
+    const head = "/dashboard";
+    let path = `${head}/${
+      this.state.chatrooms[parseInt(e.key, this.state.chatrooms.length)].name
+    }`;
+    history.push(path);
+    this.setState({ selectedKeys: [e.key] });
+  };
+
+  onLeaveChatroom(chatroomName, onLeaveSuccess) {
+    // this.state.client.leave(chatroomName, err => {
+    //   if (err) return console.error(err);
+    return onLeaveSuccess();
+    // });
+  }
+
+  renderChatroomOrRedirect = chatroom => {
+    // const { chatHistory } = history.location.state;
+
+    return (
+      <Chatroom
+        chatroom={chatroom}
+        // chatHistory={chatHistory}
+        user={this.state.user}
+        onLeave={() =>
+          this.onLeaveChatroom(chatroom.name, () => {
+            this.setState({ selectedKeys: [""] });
+            history.push("/dashboard");
+          })
+        }
+        onSendMessage={(message, cb) =>
+          this.state.client.message(chatroom.name, message, cb)
+        }
+      />
+    );
+  };
+
   render() {
-    const { user } = this.props;
     return (
       <Layout style={{ height: "100vh" }}>
         <Header
@@ -35,7 +80,28 @@ class DashboardPage extends React.Component {
             alignItems: "center"
           }}
         >
-          <h1 style={{ color: "white", margin: "0px" }}>Username: {user}</h1>
+          <h1 style={{ color: "white", margin: "0px" }}>
+            Username: {this.state.user}
+          </h1>
+          <div
+            style={{
+              width: "60%",
+              display: "flex",
+              justifyContent: "space-around",
+              alignItems: "center"
+            }}
+          >
+            <Input
+              placeholder="Input group to add or group id to join"
+              style={{ width: "50%" }}
+            />
+            <Button size="large" onClick={{}}>
+              Add Group
+            </Button>
+            <Button size="large" onClick={{}}>
+              Join Group
+            </Button>
+          </div>
           <Button type="primary" size="large" onClick={this.handleSignOut}>
             Logout
           </Button>
@@ -44,14 +110,14 @@ class DashboardPage extends React.Component {
           <Sider width={250} style={{ background: "#fff" }}>
             <Menu
               mode="inline"
-              defaultSelectedKeys={["1"]}
-              defaultOpenKeys={["sub1"]}
               style={{ height: "100%", borderRight: 0 }}
+              selectedKeys={this.state.selectedKeys}
+              onSelect={this.handleSelected}
             >
-              {this.state.chatroomList.map((room, key) => (
+              {this.state.chatrooms.map((room, key) => (
                 <Menu.Item key={key}>
                   <Icon type={this.randomIcon()} />
-                  {room}
+                  {room.name}
                 </Menu.Item>
               ))}
             </Menu>
@@ -60,12 +126,24 @@ class DashboardPage extends React.Component {
             <Content
               style={{
                 background: "#fff",
-                padding: 24,
+                // padding: 24,
                 margin: 0,
-                minHeight: 280
+                minHeight: 280,
+                height: "100%"
               }}
             >
-              Content
+              <Switch>
+                {this.state.chatrooms.map(chatroom => (
+                  <Route
+                    key={chatroom.name}
+                    exact
+                    path={`/dashboard/${chatroom.name}`}
+                    render={props =>
+                      this.renderChatroomOrRedirect(chatroom, props)
+                    }
+                  />
+                ))}
+              </Switch>
             </Content>
           </Layout>
         </Layout>
